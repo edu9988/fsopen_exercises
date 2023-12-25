@@ -11,6 +11,13 @@ const App = () => {
     const hNeutral = () => setNeutral(neutral+1)
     const hBad = () => setBad(bad+1)
 
+    let pos = 0
+    let avg = 0
+    if ( good+neutral+bad != 0 ){
+	avg = (good-bad)/(good+neutral+bad)
+	pos = 100*good/(good+neutral+bad)
+    }
+
     return (
 	<>
 	    <h1>give feedback</h1>
@@ -22,8 +29,8 @@ const App = () => {
 	    <Display name="neutral" result={neutral} />
 	    <Display name="bad" result={bad} />
 	    <Display name="all" result={good+neutral+bad} />
-	    <Display name="average" result={(good-bad)/(good+neutral+bad)} />
-	    <Display name="positive" result={100*(good)/(good+neutral+bad)} unit="%"/>
+	    <Display name="average" result={avg} />
+	    <Display name="positive" result={pos} unit="%"/>
 	</>
     )
 }
