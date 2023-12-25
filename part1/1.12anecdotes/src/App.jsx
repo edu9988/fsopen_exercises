@@ -17,8 +17,10 @@ const App = () => {
   const [selected, setSelected] = useState(0)
 
     const hClick = () => {
-	const newValue = Math.floor(8*Math.random())
-	console.log(newValue)
+	let newValue = 0
+	do
+	    newValue = Math.floor(8*Math.random())
+	while ( newValue === selected )
 	setSelected(newValue)
     }
 
