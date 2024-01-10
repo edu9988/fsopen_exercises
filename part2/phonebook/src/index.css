@@ -1,0 +1,15 @@
+.warning,.error {
+    background-color: lightgray;
+    font-size: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.warning {
+    color: green;
+}
+
+.error {
+    color: red;
+}
