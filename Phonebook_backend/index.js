@@ -33,7 +33,23 @@ app.get('/api/persons', (request, response) => {
 	'\nRequest BODY:\n',
 	request.body
     )
+
     response.json(persons)
+})
+
+app.get('/info', (req,res) => {
+    console.log('GET /info request:\n',
+	'Request HEADERS:\n',
+	req.headers,
+	'\nRequest BODY:\n',
+	req.body
+    )
+
+    const count = persons.reduce( (s,p) => s+1 , 0 )
+    res.send(`<!doctype html>
+	<p>Phonebook has info for ${count} people</p>
+	<p>${Date()}</p>`
+    )
 })
 
 const PORT = 3001
