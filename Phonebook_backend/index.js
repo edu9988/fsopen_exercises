@@ -2,7 +2,9 @@ const express = require('express')
 const morgan = require('morgan')
 const app = express()
 
-app.use(morgan('tiny'))
+morgan.token('body', (req,res) => JSON.stringify(req.body))
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms\n:body'))
 app.use(express.json())
 
 let persons = [
@@ -29,24 +31,10 @@ let persons = [
 ]
 
 app.get('/api/persons', (request, response) => {
-    console.log('GET request:\n',
-	'Request HEADERS:\n',
-	request.headers,
-	'\nRequest BODY:\n',
-	request.body
-    )
-
     response.json(persons)
 })
 
 app.get('/info', (req,res) => {
-    console.log('GET /info request:\n',
-	'Request HEADERS:\n',
-	req.headers,
-	'\nRequest BODY:\n',
-	req.body
-    )
-
     const count = persons.reduce( (s,p) => s+1 , 0 )
     res.send(`<!doctype html>
 	<p>Phonebook has info for ${count} people</p>
@@ -55,13 +43,6 @@ app.get('/info', (req,res) => {
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    console.log('GET request:\n',
-	'Request HEADERS:\n',
-	req.headers,
-	'\nRequest BODY:\n',
-	req.body
-    )
-
     const id = Number(req.params.id)
     const person = persons.find(p => p.id === id)
 
@@ -72,13 +53,6 @@ app.get('/api/persons/:id', (req, res) => {
 })
 
 app.delete('/api/persons/:id', (req, res) => {
-    console.log('DELETE request:\n',
-	'Request HEADERS:\n',
-	req.headers,
-	'\nRequest BODY:\n',
-	req.body
-    )
-
     const id = Number(req.params.id)
     if( persons.some(p => p.id === id) ){
 	persons = persons.filter(p => p.id !== id)
@@ -89,13 +63,6 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons', (req, res) => {
-    console.log('POST request:\n',
-	'Request HEADERS:\n',
-	req.headers,
-	'\nRequest BODY:\n',
-	req.body
-    )
-
     if( !req.body.name )
 	return res.status(400).json({
 	    error: 'name missing'
