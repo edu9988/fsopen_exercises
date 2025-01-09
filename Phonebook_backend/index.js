@@ -66,23 +66,32 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.post('/api/persons', (req, res) => {
-    if( !req.body.name )
+    if( !req.body.name && req.body.number )
 	return res.status(400).json({
 	    error: 'name missing'
 	})
 
-    if( !req.body.number )
+    if( !req.body.number && req.body.name )
 	return res.status(400).json({
 	    error: 'number missing'
 	})
 
-    if( persons.some(p => p.name === req.body.name ) )
+    if( !req.body.number && !req.body.name )
 	return res.status(400).json({
-	    error: 'name must be unique'
+	    error: 'name and number missing'
 	})
 
+    if( persons.some(p => p.name === req.body.name ) )
+	return res.status(400).json({
+	    error: `name must be unique, '${req.body.name}' already taken`
+	})
+
+    let newId = Math.floor( Math.random()*1000 )
+    while( persons.some( p => p.id === newId ) )
+        newId++
+
     const person = {
-	id: Math.floor(Math.random() * 100000),
+	id: newId,
 	name: req.body.name,
 	number: req.body.number
     }
