@@ -5,7 +5,7 @@ const cors = require('cors')
 
 morgan.token('body', (req,res) => JSON.stringify(req.body))
 
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms\n:body'))
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 app.use(express.json())
 app.use(cors())
 app.use(express.static('dist'))
@@ -96,8 +96,8 @@ app.post('/api/persons', (req, res) => {
 	number: req.body.number
     }
 
-    res.json(person)
     persons = persons.concat(person)
+    res.json(person)
 })
 
 const PORT = process.env.PORT || 3001
