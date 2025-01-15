@@ -1,7 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
 const cors = require('cors')
+const Person = require('./model/person')
 
 morgan.token('body', (req,res) => JSON.stringify(req.body))
 
@@ -33,10 +35,6 @@ let persons = [
     }
 ]
 
-app.get('/api/persons', (request, response) => {
-    response.json(persons)
-})
-
 app.get('/info', (req,res) => {
     const count = persons.reduce( (s,p) => s+1 , 0 )
     res.send(`<!doctype html>
@@ -45,14 +43,14 @@ app.get('/info', (req,res) => {
     )
 })
 
-app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(p => p.id === id)
+app.get('/api/persons', (req, res) => {
+    Person.find({})
+        .then( p => res.json(p) )
+})
 
-    if(person)
-	res.json(person)
-    else
-	res.status(404).end()
+app.get('/api/persons/:id', (req, res) => {
+    Person.findById(req.params.id)
+        .then( r => res.json(r) )
 })
 
 app.delete('/api/persons/:id', (req, res) => {
