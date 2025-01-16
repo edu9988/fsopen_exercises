@@ -30,14 +30,19 @@ app.get('/api/persons/:id', (req, res) => {
         .then( r => res.json(r) )
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    if( persons.some(p => p.id === id) ){
-	persons = persons.filter(p => p.id !== id)
-	res.status(204).end()
-    }
-    else
-	res.status(404).end()
+app.delete('/api/persons/:id', (request,response) => {
+    const id = request.params.id
+    Person.findByIdAndDelete( id )
+        .then( result => {
+            if( result )
+                response.status(204).end()
+            else
+                response.status(404).end()
+        })
+        .catch( error => {
+            //console.error( error )
+            response.status(500).end()
+        })
 })
 
 app.post('/api/persons', (req, res) => {
