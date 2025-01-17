@@ -25,9 +25,15 @@ app.get('/api/persons', (req, res) => {
         .then( p => res.json(p) )
 })
 
-app.get('/api/persons/:id', (req, res) => {
-    Person.findById(req.params.id)
-        .then( r => res.json(r) )
+app.get('/api/persons/:id', (request,response,next) => {
+    Person.findById(request.params.id)
+        .then( answer => {
+            if( answer )
+                response.json( answer )
+            else
+                response.status(404).end()
+        })
+        .catch( error => next(error) )
 })
 
 app.delete('/api/persons/:id', (request,response,next) => {
@@ -65,12 +71,6 @@ app.post('/api/persons', (req, res) => {
 	})
 */
 
-/* can't use this anymore
-    let newId = Math.floor( Math.random()*1000 )
-    while( persons.some( p => p.id === newId ) )
-        newId++
-*/
-
     const person = new Person({
         name: req.body.name,
         number: req.body.number
@@ -80,6 +80,22 @@ app.post('/api/persons', (req, res) => {
         .then( savedPerson => {
             res.json( savedPerson )
         })
+})
+
+app.put('/api/persons/:id',(request,response,next) => {
+    const id = request.params.id
+    const body = request.body
+
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(id,person,{new:true})
+        .then( updatedPerson => {
+            response.json( updatedPerson )
+        })
+        .catch( error => next(error) )
 })
 
 const errorHandler = (error,request,response,next) => {
