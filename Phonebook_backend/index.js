@@ -12,12 +12,23 @@ app.use(express.json())
 app.use(cors())
 app.use(express.static('dist'))
 
-app.get('/info', (req,res) => {
-    const count = persons.reduce( (s,p) => s+1 , 0 )
-    res.send(`<!doctype html>
-	<p>Phonebook has info for ${count} people</p>
-	<p>${Date()}</p>`
-    )
+app.get('/info', (request,response) => {
+    Person.find({})
+        .then( persons => {
+            const count = persons.length
+            response.send(`<!doctype html>
+                <p>Phonebook has info for ${count} people</p>
+                <p>${Date()}</p>`
+            )
+        })
+        .catch( error => {
+            console.error('find error:',error.message)
+            response.send(`<!doctype html>
+                <p>Fetching Phonebook info failed</p>
+                <p>${Date()}</p>`
+            )
+        })
+
 })
 
 app.get('/api/persons', (req, res) => {
