@@ -7,6 +7,7 @@
     "build:ui": "rm -rf dist;cd ~/fsopen/fsopen_exercises/part2/phonebook;npm i;npm run build;mv dist ~/fsopen/fsopen_ex_part3/Phonebook_backend/;rm -rf node_modules",
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,7 +24,11 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.18.0",
     "@flydotio/dockerfile": "^0.5.0",
+    "@stylistic/eslint-plugin-js": "^2.13.0",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0",
     "nodemon": "^3.0.3"
   }
 }
