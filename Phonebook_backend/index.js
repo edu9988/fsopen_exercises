@@ -116,7 +116,6 @@ const errorHandler = (error,request,response,next) => {
     next(error)
 }
 
-:Qa
 app.use( errorHandler )
 
 const PORT = process.env.PORT || 3001
