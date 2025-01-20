@@ -31,9 +31,10 @@ app.get('/info', (request,response) => {
 
 })
 
-app.get('/api/persons', (req, res) => {
+app.get('/api/persons', (request, response) => {
     Person.find({})
-        .then( p => res.json(p) )
+        .then( p => response.json(p) )
+        .catch( error => next(error) )
 })
 
 app.get('/api/persons/:id', (request,response,next) => {
@@ -59,38 +60,23 @@ app.delete('/api/persons/:id', (request,response,next) => {
         .catch( error => next(error) )
 })
 
-app.post('/api/persons', (req, res) => {
-    if( !req.body.name && req.body.number )
-        return res.status(400).json({
-            error: 'name missing'
-        })
-
-    if( !req.body.number && req.body.name )
-        return res.status(400).json({
-            error: 'number missing'
-        })
-
-    if( !req.body.number && !req.body.name )
-        return res.status(400).json({
-            error: 'name and number missing'
-        })
-
+app.post('/api/persons', (request,response,next) => {
 /* can't use this for now
-    if( persons.some(p => p.name === req.body.name ) )
-        return res.status(400).json({
-            error: `name must be unique, '${req.body.name}' already taken`
+    if( persons.some(p => p.name === request.body.name ) )
+        return response.status(400).json({
+            error: `name must be unique, '${request.body.name}' already taken`
 	})
 */
-
     const person = new Person({
-        name: req.body.name,
-        number: req.body.number
+        name: request.body.name,
+        number: request.body.number
     })
 
     person.save()
         .then( savedPerson => {
-            res.json( savedPerson )
+            response.json( savedPerson )
         })
+        .catch( error => next(error) )
 })
 
 app.put('/api/persons/:id',(request,response,next) => {
@@ -102,7 +88,11 @@ app.put('/api/persons/:id',(request,response,next) => {
         number: body.number
     }
 
-    Person.findByIdAndUpdate(id,person,{new:true})
+    Person.findByIdAndUpdate(id,person,{
+        new:true,
+        runValidators: true,
+        context: 'query'
+    })
         .then( updatedPerson => {
             response.json( updatedPerson )
         })
@@ -116,10 +106,17 @@ const errorHandler = (error,request,response,next) => {
         return response.status(400).send(
             {error:'malformatted id'}
         )
+    else if( error.name === 'ValidationError' ){
+        console.error(error)
+        return response.status(400).json(
+            {error:error.message}
+        )
+    }
 
     next(error)
 }
 
+:Qa
 app.use( errorHandler )
 
 const PORT = process.env.PORT || 3001
