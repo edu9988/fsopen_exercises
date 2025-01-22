@@ -39,7 +39,7 @@ const App = () => {
 		content: null,
 		success: true
 	    })}
-	    ,6000
+	    ,12000
 	)
     }
 
@@ -53,7 +53,7 @@ const App = () => {
 		content: null,
 		success: true
 	    })}
-	    ,6000
+	    ,12000
 	)
     }
 
@@ -66,7 +66,11 @@ const App = () => {
 	    console.log(error.response)
 	    return "error.response.data undefined"
 	}
-	return error.response.data
+    if( error.response.data.error === undefined ){
+        console.log(error.response.data)
+        return error.response.data.toString()
+    }
+	return error.response.data.error
     }
 
     const addPerson = (event) => {
