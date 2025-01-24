@@ -72,7 +72,7 @@ describe('totalLikes', () => {
     }
   ]
 
-  test('of many is calculated right', () => {
+  test('of many is the sum of all likes', () => {
     const result = totalLikes(manyBlogs)
 
     assert.strictEqual(result, 36)

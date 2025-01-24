@@ -1,9 +1,9 @@
 const { test, describe } = require('node:test')
 const assert = require('node:assert')
 
-const favoriteBlog = require('../utils/list_helper').favoriteBlog
+const mostBlogs = require('../utils/list_helper').mostBlogs
 
-describe('favoriteBlog', () => {
+describe('mostBlogs', () => {
   const listWithOneBlog = [
     {
       _id: '5a422aa71b54a676234d17f8',
@@ -15,12 +15,11 @@ describe('favoriteBlog', () => {
     }
   ]
 
-  test('of one value is the own value', () => {
-    const result = favoriteBlog(listWithOneBlog)
+  test('of one value is an object with the only author', () => {
+    const result = mostBlogs(listWithOneBlog)
     const expected = {
-      title: listWithOneBlog[0].title,
       author: listWithOneBlog[0].author,
-      likes: listWithOneBlog[0].likes
+      blogs: 1
     }
 
     assert.deepStrictEqual(result, expected)
@@ -77,19 +76,18 @@ describe('favoriteBlog', () => {
     }
   ]
 
-  test('of many is the one with most likes', () => {
-    const result = favoriteBlog(manyBlogs)
+  test('of many is an object with the author with most occurrences', () => {
+    const result = mostBlogs(manyBlogs)
     const expected = {
-      title: manyBlogs[2].title,
-      author: manyBlogs[2].author,
-      likes: manyBlogs[2].likes
+      author: manyBlogs[3].author,
+      blogs: 3
     }
 
     assert.deepStrictEqual(result, expected)
   })
 
-  test('of empty array is undefined', () => {
-    assert.deepStrictEqual(favoriteBlog([]), undefined)
+  test('of empty array is an object with empty author', () => {
+    const expected = {author: '', blogs: 0}
+    assert.deepStrictEqual(mostBlogs([]), expected)
   })
 })
-
