@@ -88,7 +88,7 @@ const mostLikes = (blogList) => {
         max = newListItem
     }
   })
-  
+
   return max
 }
 
@@ -96,5 +96,6 @@ module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }
