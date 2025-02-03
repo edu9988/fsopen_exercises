@@ -31,6 +31,14 @@ describe('api', () => {
     assert.strictEqual(response.body.length, helper.initialBlogs.length)
   })
 
+  test('unique identifier is named id', async () => {
+    const response = await api.get('/api/blogs')
+
+    response.body.forEach( blog => {
+      assert('id' in blog && !('_id' in blog))
+    })
+  })
+
   after(async () => {
     await mongoose.connection.close()
   })
