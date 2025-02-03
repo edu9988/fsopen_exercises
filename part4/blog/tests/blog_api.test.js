@@ -39,65 +39,93 @@ describe('api', () => {
     })
   })
 
-  test('post works', async () => {
-    const newBlog = {
-      author: 'Alice',
-      title: 'in Wonderland',
-      url: 'about: blank',
-      likes: 0
-    }
+  describe('post', () => {
 
-    await api.post('/api/blogs')
-      .send( newBlog )
-      .expect( 201 )
-      .expect( 'Content-Type', /application\/json/ )
+    test('post works', async () => {
+      const newBlog = {
+        author: 'Alice',
+        title: 'in Wonderland',
+        url: 'about: blank',
+        likes: 0
+      }
 
-    const blogsAfter = await helper.blogsInDb()
-    assert.strictEqual( blogsAfter.length, helper.initialBlogs.length + 1 )
-    const inserted = blogsAfter[blogsAfter.length-1]
-    delete inserted.id
-    assert.deepStrictEqual( inserted, newBlog )
+      await api.post('/api/blogs')
+        .send( newBlog )
+        .expect( 201 )
+        .expect( 'Content-Type', /application\/json/ )
+
+      const blogsAfter = await helper.blogsInDb()
+      assert.strictEqual( blogsAfter.length, helper.initialBlogs.length + 1 )
+      const inserted = blogsAfter[blogsAfter.length-1]
+      delete inserted.id
+      assert.deepStrictEqual( inserted, newBlog )
+    })
+
+    test('"likes" defaults to 0', async () => {
+      const newBlog = {
+        author: 'Bob',
+        title: 'Barbecue',
+        url: 'about: blank'
+      }
+
+      await api.post('/api/blogs')
+        .send( newBlog )
+        .expect( 201 )
+        .expect( 'Content-Type', /application\/json/ )
+
+      const blogsAfter = await helper.blogsInDb()
+      assert.strictEqual( blogsAfter[blogsAfter.length-1].likes, 0 )
+    })
+
+    test('post object missing title returns 400', async () => {
+      const newBlog = {
+        author: 'Bob',
+        url: 'about: blank'
+      }
+
+      await api.post('/api/blogs')
+        .send( newBlog )
+        .expect( 400 )
+    })
+
+    test('post object missing url returns 400', async () => {
+      const newBlog = {
+        author: 'Bob',
+        title: 'Barbecue'
+      }
+
+      await api.post('/api/blogs')
+        .send( newBlog )
+        .expect( 400 )
+    })
+
   })
 
-  test('"likes" defaults to 0', async () => {
-    const newBlog = {
-      author: 'Bob',
-      title: 'Barbecue',
-      url: 'about: blank'
-    }
+  describe('delete', () => {
 
-    await api.post('/api/blogs')
-      .send( newBlog )
-      .expect( 201 )
-      .expect( 'Content-Type', /application\/json/ )
+    test('returns 204 if id is valid', async () => {
+      const blogsBefore = await api.get('/api/blogs')
+      const singleBlog = blogsBefore.body[0]
+      
+      await api.delete(`/api/blogs/${singleBlog.id}`)
+        .expect(204)
 
-    const blogsAfter = await helper.blogsInDb()
-    assert.strictEqual( blogsAfter[blogsAfter.length-1].likes, 0 )
+      const blogsAfter = await api.get('/api/blogs')
+      
+      assert(!blogsAfter.body.includes(singleBlog))
+    })
+
+    test('returns 404 if id not found', async () => {
+      const validNonexistingId = await helper.nonExistingId()
+      
+      await api
+        .delete(`/api/blogs/${validNonexistingId}`)
+        .expect(404)
+    })
   })
 
-  test('post object missing title returns 400', async () => {
-    const newBlog = {
-      author: 'Bob',
-      url: 'about: blank'
-    }
+})
 
-    await api.post('/api/blogs')
-      .send( newBlog )
-      .expect( 400 )
-  })
-
-  test('post object missing url returns 400', async () => {
-    const newBlog = {
-      author: 'Bob',
-      title: 'Barbecue'
-    }
-
-    await api.post('/api/blogs')
-      .send( newBlog )
-      .expect( 400 )
-  })
-
-  after(async () => {
-    await mongoose.connection.close()
-  })
+after(async () => {
+  await mongoose.connection.close()
 })
