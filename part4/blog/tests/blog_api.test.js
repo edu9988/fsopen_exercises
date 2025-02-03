@@ -75,6 +75,28 @@ describe('api', () => {
     assert.strictEqual( blogsAfter[blogsAfter.length-1].likes, 0 )
   })
 
+  test('post object missing title returns 400', async () => {
+    const newBlog = {
+      author: 'Bob',
+      url: 'about: blank'
+    }
+
+    await api.post('/api/blogs')
+      .send( newBlog )
+      .expect( 400 )
+  })
+
+  test('post object missing url returns 400', async () => {
+    const newBlog = {
+      author: 'Bob',
+      title: 'Barbecue'
+    }
+
+    await api.post('/api/blogs')
+      .send( newBlog )
+      .expect( 400 )
+  })
+
   after(async () => {
     await mongoose.connection.close()
   })
