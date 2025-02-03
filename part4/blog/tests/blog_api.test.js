@@ -39,6 +39,26 @@ describe('api', () => {
     })
   })
 
+  test('post works', async () => {
+    const newBlog = {
+      author: 'Alice',
+      title: 'in Wonderland',
+      url: 'about: blank',
+      likes: 0
+    }
+
+    await api.post('/api/blogs')
+      .send( newBlog )
+      .expect( 201 )
+      .expect( 'Content-Type', /application\/json/ )
+
+    const blogsAfter = await helper.blogsInDb()
+    assert.strictEqual( blogsAfter.length, helper.initialBlogs.length + 1 )
+    const inserted = blogsAfter[blogsAfter.length-1]
+    delete inserted.id
+    assert.deepStrictEqual( inserted, newBlog )
+  })
+
   after(async () => {
     await mongoose.connection.close()
   })
