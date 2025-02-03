@@ -124,6 +124,35 @@ describe('api', () => {
     })
   })
 
+  describe('put', () => {
+    test('valid id and body returns 200', async () => {
+      const blogsBefore = await api.get('/api/blogs')
+      const singleBlog = blogsBefore.body[0]
+      singleBlog.likes += 1
+
+      await api
+        .put(`/api/blogs/${singleBlog.id}`)
+        .send(singleBlog)
+        .expect(200)
+
+      const blogsAfter = await api.get('/api/blogs')
+      const alteredBlog = blogsAfter.body[0]
+
+      assert.deepStrictEqual( singleBlog, alteredBlog )
+    })
+
+    test('returns 404 if id not found', async () => {
+      const validBlog = helper.initialBlogs[0]
+      const validNonexistingId = await helper.nonExistingId()
+      
+      await api
+        .put(`/api/blogs/${validNonexistingId}`)
+        .send(validBlog)
+        .expect(404)
+    })
+
+  })
+
 })
 
 after(async () => {
