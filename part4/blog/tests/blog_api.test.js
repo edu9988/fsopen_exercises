@@ -59,6 +59,22 @@ describe('api', () => {
     assert.deepStrictEqual( inserted, newBlog )
   })
 
+  test('"likes" defaults to 0', async () => {
+    const newBlog = {
+      author: 'Bob',
+      title: 'Barbecue',
+      url: 'about: blank'
+    }
+
+    await api.post('/api/blogs')
+      .send( newBlog )
+      .expect( 201 )
+      .expect( 'Content-Type', /application\/json/ )
+
+    const blogsAfter = await helper.blogsInDb()
+    assert.strictEqual( blogsAfter[blogsAfter.length-1].likes, 0 )
+  })
+
   after(async () => {
     await mongoose.connection.close()
   })
