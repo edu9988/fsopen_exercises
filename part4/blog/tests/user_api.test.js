@@ -1,5 +1,5 @@
 const { test, describe, after, beforeEach } = require('node:test')
-const Blog = require('../models/blog')
+const User = require('../models/user')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const helper = require('./test_helper')
@@ -8,59 +8,116 @@ const assert = require('node:assert')
 
 const api = supertest(app)
 
-describe('blogs api', () => {
+describe('users api', () => {
   beforeEach( async () => {
-    await Blog.deleteMany({})
+    await User.deleteMany({})
 
+/*
     const blogObjects = helper.initialBlogs
       .map( blog => new Blog(blog) )
     const promiseArray = blogObjects.map( blog => blog.save() )
     await Promise.all( promiseArray )
-  })
-
-  test('blogs are returned as json', async () => {
-    await api
-      .get('/api/blogs')
-      .expect(200)
-      .expect('Content-Type', /application\/json/)
-  })
-
-  test('there are six blogs', async () => {
-    const response = await api.get('/api/blogs')
-
-    assert.strictEqual(response.body.length, helper.initialBlogs.length)
-  })
-
-  test('unique identifier is named id', async () => {
-    const response = await api.get('/api/blogs')
-
-    response.body.forEach( blog => {
-      assert('id' in blog && !('_id' in blog))
-    })
+*/
   })
 
   describe('post', () => {
 
-    test('post works', async () => {
-      const newBlog = {
-        author: 'Alice',
-        title: 'in Wonderland',
-        url: 'about: blank',
-        likes: 0
+    test('good post returns 201', async () => {
+      const newUser = {
+        username: 'Alice',
+        name: 'in Wonderland',
+        password: '1234'
       }
 
-      await api.post('/api/blogs')
-        .send( newBlog )
+      await api.post('/api/users')
+        .send( newUser )
         .expect( 201 )
         .expect( 'Content-Type', /application\/json/ )
 
-      const blogsAfter = await helper.blogsInDb()
-      assert.strictEqual( blogsAfter.length, helper.initialBlogs.length + 1 )
-      const inserted = blogsAfter[blogsAfter.length-1]
+      const usersAfter = await helper.usersInDb()
+      assert.strictEqual( usersAfter.length, 1 )
+      const inserted = usersAfter[0]
       delete inserted.id
-      assert.deepStrictEqual( inserted, newBlog )
+      delete newUser.password
+      newUser.blogs = []
+      assert.deepStrictEqual( inserted, newUser )
     })
 
+    test('too short username returns 400', async () => {
+      const newUser = {
+        username: 'Al',
+        name: 'in Wonderland',
+        password: '1234'
+      }
+
+      await api.post('/api/users')
+        .send( newUser )
+        .expect( 400 )
+        .expect( 'Content-Type', /application\/json/ )
+    })
+
+    test('duplicate username returns 400', async () => {
+      let newUser = {
+        username: 'Alice',
+        name: 'in Wonderland',
+        password: '1234'
+      }
+
+      await api.post('/api/users')
+        .send( newUser )
+        .expect( 201 )
+        .expect( 'Content-Type', /application\/json/ )
+
+      newUser = {
+        username: 'Alice',
+        name: 'The marvelous',
+        password: '1234'
+      }
+
+      await api.post('/api/users')
+        .send( newUser )
+        .expect( 400 )
+        .expect( 'Content-Type', /application\/json/ )
+    })
+
+    test('missing username returns 400', async () => {
+      const newUser = {
+        name: 'Elon Musk',
+        password: '1234'
+      }
+
+      await api.post('/api/users')
+        .send( newUser )
+        .expect( 400 )
+        .expect( 'Content-Type', /application\/json/ )
+    })
+
+    test('too short password returns 400', async () => {
+      const newUser = {
+        username: 'Bob',
+        name: 'Burnquist',
+        password: '12'
+      }
+
+      await api.post('/api/users')
+        .send( newUser )
+        .expect( 400 )
+        .expect( 'Content-Type', /application\/json/ )
+    })
+
+    test('missing password returns 400', async () => {
+      const newUser = {
+        username: 'Bob',
+        name: 'Burnquist'
+      }
+
+      await api.post('/api/users')
+        .send( newUser )
+        .expect( 400 )
+        .expect( 'Content-Type', /application\/json/ )
+    })
+
+/*
     test('"likes" defaults to 0', async () => {
       const newBlog = {
         author: 'Bob',
@@ -98,9 +155,11 @@ describe('blogs api', () => {
         .send( newBlog )
         .expect( 400 )
     })
+    */
 
   })
 
+/*
   describe('delete', () => {
 
     test('returns 204 if id is valid', async () => {
@@ -152,6 +211,7 @@ describe('blogs api', () => {
     })
 
   })
+*/
 
 })
 
