@@ -25,7 +25,19 @@ const tokenExtractor = (request, response, next) => {
   next()
 }
 
+const requestLogger = (request, response, next) => {
+  console.log(`\n${new Date()}`,
+    'Method:', request.method,
+    'Path:  ', request.path,
+    'Headers:  ', request.headers,
+    'Body:  ', request.body,
+    '\n'
+  )
+  next()
+}
+
 module.exports ={
   errorHandler,
-  tokenExtractor
+  tokenExtractor,
+  requestLogger
 }
