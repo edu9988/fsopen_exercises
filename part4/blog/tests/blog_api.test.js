@@ -1,4 +1,4 @@
-const { test, describe, after, beforeEach } = require('node:test')
+const { before, test, describe, after, beforeEach } = require('node:test')
 const Blog = require('../models/blog')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
@@ -7,12 +7,44 @@ const app = require('../app')
 const assert = require('node:assert')
 
 const api = supertest(app)
+let userId, token
+
+before( async () => {
+  const userResponse = await api
+    .get('/api/users')
+  if( !userResponse.body
+    .some( u => u.username === 'Alice' )
+  ){
+    const result = await api
+      .post('/api/users')
+      .send( {
+        username: 'Alice',
+        password: '1234'
+      })
+    userId = result.body.id
+  }
+  else
+    userId = userResponse.body
+      .find( u => u.username === 'Alice' ).id
+
+  const loginResult = await api
+    .post('/api/login')
+    .send( {
+      username: 'Alice',
+      password: '1234'
+    })
+
+  token = loginResult.body.token
+})
 
 describe('blogs api', () => {
   beforeEach( async () => {
     await Blog.deleteMany({})
 
-    const blogObjects = helper.initialBlogs
+    let blogObjects = helper.initialBlogs
+    blogObjects
+      .forEach( blog => blog.user = userId )
+    blogObjects = blogObjects
       .map( blog => new Blog(blog) )
     const promiseArray = blogObjects.map( blog => blog.save() )
     await Promise.all( promiseArray )
@@ -49,15 +81,19 @@ describe('blogs api', () => {
         likes: 0
       }
 
-      await api.post('/api/blogs')
+      const r = await api.post('/api/blogs')
         .send( newBlog )
+        .set('Authorization', `Bearer ${token}`)
         .expect( 201 )
         .expect( 'Content-Type', /application\/json/ )
-
+      
       const blogsAfter = await helper.blogsInDb()
       assert.strictEqual( blogsAfter.length, helper.initialBlogs.length + 1 )
       const inserted = blogsAfter[blogsAfter.length-1]
+
+      assert.strictEqual( inserted.user.toString(), userId )
       delete inserted.id
+      delete inserted.user
       assert.deepStrictEqual( inserted, newBlog )
     })
 
@@ -70,6 +106,7 @@ describe('blogs api', () => {
 
       await api.post('/api/blogs')
         .send( newBlog )
+        .set('Authorization', `Bearer ${token}`)
         .expect( 201 )
         .expect( 'Content-Type', /application\/json/ )
 
@@ -85,7 +122,21 @@ describe('blogs api', () => {
 
       await api.post('/api/blogs')
         .send( newBlog )
+        .set('Authorization', `Bearer ${token}`)
         .expect( 400 )
+    })
+
+    test('missing token returns 401', async () => {
+      const newBlog = {
+        author: 'Bob',
+        title: 'Barbecue',
+        url: 'about: blank',
+        likes: 0
+      }
+
+      await api.post('/api/blogs')
+        .send( newBlog )
+        .expect( 401 )
     })
 
     test('post object missing url returns 400', async () => {
@@ -96,18 +147,19 @@ describe('blogs api', () => {
 
       await api.post('/api/blogs')
         .send( newBlog )
+        .set('Authorization', `Bearer ${token}`)
         .expect( 400 )
     })
 
   })
 
   describe('delete', () => {
-
-    test('returns 204 if id is valid', async () => {
+    test('returns 204 if id and token are valid', async () => {
       const blogsBefore = await api.get('/api/blogs')
-      const singleBlog = blogsBefore.body[0]
+      const singleBlog = blogsBefore.body[blogsBefore.body.length-1]
       
       await api.delete(`/api/blogs/${singleBlog.id}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(204)
 
       const blogsAfter = await api.get('/api/blogs')
@@ -120,7 +172,16 @@ describe('blogs api', () => {
       
       await api
         .delete(`/api/blogs/${validNonexistingId}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(404)
+    })
+
+    test('deleting without token returns 401', async () => {
+      const blogsBefore = await api.get('/api/blogs')
+      const singleBlog = blogsBefore.body[blogsBefore.body.length-1]
+      
+      await api.delete(`/api/blogs/${singleBlog.id}`)
+        .expect(401)
     })
   })
 
@@ -129,6 +190,7 @@ describe('blogs api', () => {
       const blogsBefore = await api.get('/api/blogs')
       const singleBlog = blogsBefore.body[0]
       singleBlog.likes += 1
+      delete singleBlog.user
 
       await api
         .put(`/api/blogs/${singleBlog.id}`)
@@ -137,6 +199,7 @@ describe('blogs api', () => {
 
       const blogsAfter = await api.get('/api/blogs')
       const alteredBlog = blogsAfter.body[0]
+      delete alteredBlog.user
 
       assert.deepStrictEqual( singleBlog, alteredBlog )
     })

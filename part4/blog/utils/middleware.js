@@ -29,8 +29,10 @@ const tokenExtractor = (request, response, next) => {
 
 const userExtractor = (request, response, next) => {
   const token = request.token
+  if( token === null )
+    return response.status(401).end()
 
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  const decodedToken = jwt.verify(token, process.env.SECRET)
   if( !decodedToken.id )
     request.user = null
   else

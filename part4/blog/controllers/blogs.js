@@ -19,11 +19,11 @@ blogsRouter.post('/', tokenExtractor, userExtractor, async (request, response) =
   if( !('likes' in body) )
     body.likes = 0
 
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if(!decodedToken.id)
+  const userId = request.user
+  if(!userId)
     return response.status(401).json({error: 'token invalid'})
 
-  const user = await User.findById(decodedToken.id)
+  const user = await User.findById(userId)
   if( !user )
     return response.status(400).send({error:'no user'})
 
