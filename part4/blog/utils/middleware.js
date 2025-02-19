@@ -44,9 +44,9 @@ const userExtractor = (request, response, next) => {
 const requestLogger = (request, response, next) => {
   console.log(`\n${new Date()}`,
     'Method:', request.method,
-    'Path:  ', request.path,
-    'Headers:  ', request.headers,
-    'Body:  ', request.body,
+    'Path:', request.path,
+    'Headers:', request.headers,
+    'Body:', request.body,
     '\n'
   )
   next()
