@@ -12,7 +12,7 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [errorMsg, setErrorMsg] = useState(null)
+  const [msg, setMsg] = useState({content:null,success:true})
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -32,6 +32,32 @@ const App = () => {
     }
   }, [])
 
+  const showSuccess = (text) => {
+    setMsg({
+      content: text,
+      success: true
+    })
+    setTimeout(() => {
+      setMsg({
+        content: null,
+        success: true
+      })
+    },5000)
+  }
+
+  const showFailure = (text) => {
+    setMsg({
+      content: text,
+      success: false
+    })
+    setTimeout(() => {
+      setMsg({
+        content: null,
+        success: true
+      })
+    },5000)
+  }
+
   const handleLogin = async (event) => {
     event.preventDefault()
 
@@ -42,16 +68,14 @@ const App = () => {
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(user)
       )
+      showSuccess(`Login successful by ${user.name}`)
       setUser(user)
       setUsername('')
       setPassword('')
       blogService.setToken(user.token)
     }
     catch (exception){
-      setErrorMsg('Wrong credentials')
-      setTimeout( () => {
-        setErrorMsg(null)
-      }, 5000)
+      showFailure('Wrong credentials')
     }
   }
 
@@ -71,23 +95,21 @@ const App = () => {
         url: url
       })
 
+      showSuccess(`A new blog: ${title} by ${author} added`)
       setBlogs(blogs.concat(blog))
       setTitle('')
       setAuthor('')
       setUrl('')
     }
     catch (exception){
-      setErrorMsg('Can\'t create blog')
-      setTimeout( () => {
-        setErrorMsg(null)
-      }, 5000)
+      showFailure('Can\'t create blog')
     }
   }
 
   return (
     <>
       <h1>Blog List</h1>
-      <NotificationsField message={errorMsg} />
+      <NotificationsField message={msg} />
       {user === null
         ? <LoginForm
             handleLogin={handleLogin}

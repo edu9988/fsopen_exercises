@@ -1,11 +1,11 @@
 const NotificationsField = ({ message }) => {
-  if (message === null) {
+  if (message.content === null) {
     return null
   }
 
   return (
-    <p className='error'>
-      {message}
+    <p className={message.success?'warning':'error'}>
+      {message.content}
     </p>
   )
 }
