@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
 import LogoutPar from './components/LogoutPar'
 import NotificationsField from './components/NotificationsField'
 import CreationForm from './components/CreationForm'
+import Toggleable from './components/Toggleable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -62,17 +63,17 @@ const App = () => {
     event.preventDefault()
 
     try{
-      const user = await loginService.login({
+      const tempUser = await loginService.login({
         username, password
       })
       window.localStorage.setItem(
-        'loggedBlogappUser', JSON.stringify(user)
+        'loggedBlogappUser', JSON.stringify(tempUser)
       )
-      showSuccess(`Login successful by ${user.name}`)
-      setUser(user)
+      showSuccess(`Login successful by ${tempUser.name}`)
+      setUser(tempUser)
       setUsername('')
       setPassword('')
-      blogService.setToken(user.token)
+      blogService.setToken(tempUser.token)
     }
     catch (exception){
       showFailure('Wrong credentials')
@@ -85,6 +86,8 @@ const App = () => {
     setUser(null)
   }
 
+  const blogFormRef = useRef()
+
   const handleCreation = async (event) => {
     event.preventDefault()
 
@@ -96,6 +99,7 @@ const App = () => {
       })
 
       showSuccess(`A new blog: ${title} by ${author} added`)
+      blogFormRef.current.toggleVisibility()
       setBlogs(blogs.concat(blog))
       setTitle('')
       setAuthor('')
@@ -123,15 +127,17 @@ const App = () => {
               username={user.name}
               handleLogout={handleLogout}
             />
-            <CreationForm
-              title={title}
-              setTitle={setTitle}
-              author={author}
-              setAuthor={setAuthor}
-              url={url}
-              setUrl={setUrl}
-              handleCreation={handleCreation}
-            />
+            <Toggleable buttonLabel="new blog" ref={blogFormRef}>
+              <CreationForm
+                title={title}
+                setTitle={setTitle}
+                author={author}
+                setAuthor={setAuthor}
+                url={url}
+                setUrl={setUrl}
+                handleCreation={handleCreation}
+              />
+            </Toggleable>
             <h2>blogs</h2>
             {blogs.map(blog =>
               <Blog key={blog.id} blog={blog} />
