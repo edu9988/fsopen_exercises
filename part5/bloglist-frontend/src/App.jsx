@@ -14,9 +14,6 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [msg, setMsg] = useState({content:null,success:true})
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -88,22 +85,15 @@ const App = () => {
 
   const blogFormRef = useRef()
 
-  const handleCreation = async (event) => {
+  const handleCreation = async (blogObject) => {
     event.preventDefault()
 
     try{
-      const blog = await blogService.create({
-        title: title,
-        author: author,
-        url: url
-      })
+      const blog = await blogService.create(blogObject)
 
-      showSuccess(`A new blog: ${title} by ${author} added`)
+      showSuccess(`A new blog: ${blogObject.title} by ${blogObject.author} added`)
       blogFormRef.current.toggleVisibility()
       setBlogs(blogs.concat(blog))
-      setTitle('')
-      setAuthor('')
-      setUrl('')
     }
     catch (exception){
       showFailure('Can\'t create blog')
@@ -129,12 +119,6 @@ const App = () => {
             />
             <Toggleable buttonLabel="new blog" ref={blogFormRef}>
               <CreationForm
-                title={title}
-                setTitle={setTitle}
-                author={author}
-                setAuthor={setAuthor}
-                url={url}
-                setUrl={setUrl}
                 handleCreation={handleCreation}
               />
             </Toggleable>
