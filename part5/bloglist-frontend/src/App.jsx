@@ -21,7 +21,7 @@ const App = () => {
     )  
   }, [])
 
-  useEffect( () => {
+  useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if(loggedUserJSON){
       const user = JSON.parse(loggedUserJSON)
@@ -86,50 +86,76 @@ const App = () => {
   const blogFormRef = useRef()
 
   const handleCreation = async (blogObject) => {
-    event.preventDefault()
-
     try{
       const blog = await blogService.create(blogObject)
 
-      showSuccess(`A new blog: ${blogObject.title} by ${blogObject.author} added`)
+      showSuccess(`A new blog: "${blogObject.title}" by ${blogObject.author} added`)
       blogFormRef.current.toggleVisibility()
       setBlogs(blogs.concat(blog))
     }
     catch (exception){
-      showFailure('Can\'t create blog')
+      showFailure('Failed to create blog')
+    }
+  }
+  
+  const handleLike = async (oldBlog) => {
+    oldBlog.likes = oldBlog.likes+1
+
+    const blogPayload = {
+      title: oldBlog.title,
+      author: oldBlog.author,
+      url: oldBlog.url,
+      likes: oldBlog.likes,
+      user: oldBlog.user.id
+    }
+
+    try{
+      await blogService.update(oldBlog.id, blogPayload)
+      showSuccess(`Added like to blog "${oldBlog.title}"`)
+
+      setBlogs(blogs.map( blog => {
+        return blog.id === oldBlog.id
+          ? oldBlog
+          : blog
+      }))
+    }
+    catch (exception){
+      showFailure('Failed to update likes')
     }
   }
 
-  return (
-    <>
-      <h1>Blog List</h1>
-      <NotificationsField message={msg} />
-      {user === null
-        ? <LoginForm
-            handleLogin={handleLogin}
-            user={username}
-            setUser={setUsername}
-            passwd={password}
-            setPasswd={setPassword}
+  return (<>
+    <h1>Blog List</h1>
+    <NotificationsField message={msg} />
+    {user === null
+      ? <LoginForm
+          handleLogin={handleLogin}
+          user={username}
+          setUser={setUsername}
+          passwd={password}
+          setPasswd={setPassword}
+        />
+      : <>
+          <LogoutPar
+            username={user.name}
+            handleLogout={handleLogout}
           />
-        : <>
-            <LogoutPar
-              username={user.name}
-              handleLogout={handleLogout}
+          <Toggleable buttonLabel="new blog" ref={blogFormRef}>
+            <CreationForm
+              handleCreation={handleCreation}
             />
-            <Toggleable buttonLabel="new blog" ref={blogFormRef}>
-              <CreationForm
-                handleCreation={handleCreation}
-              />
-            </Toggleable>
-            <h2>blogs</h2>
-            {blogs.map(blog =>
-              <Blog key={blog.id} blog={blog} />
-            )}
-          </>
-      }
-    </>
-  )
+          </Toggleable>
+          <h2>blogs</h2>
+          {blogs.map(blog =>
+            <Blog
+              key={blog.id}
+              blog={blog}
+              handleLike={handleLike}
+            />
+          )}
+        </>
+    }
+  </>)
 }
 
 export default App
