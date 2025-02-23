@@ -17,7 +17,14 @@ const App = () => {
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+      setBlogs( blogs.sort((x,y) => {
+        if( x.likes > y.likes )
+          return -1
+        else if( x.likes < y.likes )
+          return 1
+        else
+          return 0
+      }))
     )  
   }, [])
 
@@ -113,11 +120,21 @@ const App = () => {
       await blogService.update(oldBlog.id, blogPayload)
       showSuccess(`Added like to blog "${oldBlog.title}"`)
 
-      setBlogs(blogs.map( blog => {
-        return blog.id === oldBlog.id
-          ? oldBlog
-          : blog
-      }))
+      setBlogs(blogs
+        .map( blog => {
+          return blog.id === oldBlog.id
+            ? oldBlog
+            : blog
+        })
+        .sort( (x,y) => {
+          if( x.likes > y.likes )
+            return -1
+          else if( x.likes < y.likes )
+            return 1
+          else
+            return 0
+        })
+      )
     }
     catch (exception){
       showFailure('Failed to update likes')
