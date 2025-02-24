@@ -26,6 +26,7 @@ const App = () => {
           return 0
       }))
     )  
+      .catch(error => console.log('getAll() failed'))
   }, [])
 
   useEffect(() => {
@@ -141,6 +142,26 @@ const App = () => {
     }
   }
 
+  const handleDeletion = async (blogId) => {
+    const targetBlog = blogs
+      .find(blog => blog.id === blogId)
+    const blogTitle = targetBlog.title
+    const blogAuthor = targetBlog.author
+
+    if( window.confirm(
+      `Delete "${blogTitle}" by ${blogAuthor}?`
+    )){
+      try{
+        await blogService.remove(blogId)
+        showSuccess(`Deleted "${blogTitle}" by ${blogAuthor}`)
+        setBlogs(blogs.filter(blog => blog.id !== blogId))
+      }
+      catch (exception){
+        showFailure(`Failed to delete "${blogTitle}" by ${blogAuthor}: ${exception}`)
+      }
+    }
+  }
+
   return (<>
     <h1>Blog List</h1>
     <NotificationsField message={msg} />
@@ -162,12 +183,17 @@ const App = () => {
               handleCreation={handleCreation}
             />
           </Toggleable>
-          <h2>blogs</h2>
+          {blogs.length
+            ? <h2>blogs</h2>
+            : <h2>no blogs</h2>
+          }
           {blogs.map(blog =>
             <Blog
               key={blog.id}
               blog={blog}
               handleLike={handleLike}
+              handleDeletion={handleDeletion}
+              owner={blog.user.username === user.username}
             />
           )}
         </>
