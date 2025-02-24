@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 
 const CreationForm = ({ handleCreation }) => {
   const [title, setTitle] = useState('')
@@ -24,7 +25,7 @@ const CreationForm = ({ handleCreation }) => {
     <form onSubmit={sendBlogData}>
       <div>
         <label htmlFor="title">Title</label>
-        <input 
+        <input
           type="text"
           value={title}
           name="title"
@@ -34,7 +35,7 @@ const CreationForm = ({ handleCreation }) => {
       </div>
       <div>
         <label htmlFor="author">Author</label>
-        <input 
+        <input
           type="text"
           value={author}
           name="author"
@@ -44,7 +45,7 @@ const CreationForm = ({ handleCreation }) => {
       </div>
       <div>
         <label htmlFor="url">Url</label>
-        <input 
+        <input
           type="text"
           value={url}
           name="url"
@@ -55,6 +56,10 @@ const CreationForm = ({ handleCreation }) => {
       <button>create</button>
     </form>
   </>)
+}
+
+CreationForm.propTypes = {
+  handleCreation: PropTypes.func.isRequired
 }
 
 export default CreationForm

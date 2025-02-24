@@ -1,3 +1,4 @@
+//failed to add propTypes because 'message' may be undefined
 const NotificationsField = ({ message }) => {
   if (message.content === null) {
     return null

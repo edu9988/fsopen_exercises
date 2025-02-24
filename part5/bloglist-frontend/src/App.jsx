@@ -13,7 +13,7 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [msg, setMsg] = useState({content:null,success:true})
+  const [msg, setMsg] = useState({ content:null,success:true })
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -25,7 +25,7 @@ const App = () => {
         else
           return 0
       }))
-    )  
+    )
       .catch(error => console.log('getAll() failed'))
   }, [])
 
@@ -105,7 +105,7 @@ const App = () => {
       showFailure('Failed to create blog')
     }
   }
-  
+
   const handleLike = async (oldBlog) => {
     oldBlog.likes = oldBlog.likes+1
 
@@ -167,36 +167,36 @@ const App = () => {
     <NotificationsField message={msg} />
     {user === null
       ? <LoginForm
-          handleLogin={handleLogin}
-          user={username}
-          setUser={setUsername}
-          passwd={password}
-          setPasswd={setPassword}
-        />
+        handleLogin={handleLogin}
+        user={username}
+        setUser={setUsername}
+        passwd={password}
+        setPasswd={setPassword}
+      />
       : <>
-          <LogoutPar
-            username={user.name}
-            handleLogout={handleLogout}
+        <LogoutPar
+          username={user.name}
+          handleLogout={handleLogout}
+        />
+        <Toggleable buttonLabel="new blog" ref={blogFormRef}>
+          <CreationForm
+            handleCreation={handleCreation}
           />
-          <Toggleable buttonLabel="new blog" ref={blogFormRef}>
-            <CreationForm
-              handleCreation={handleCreation}
-            />
-          </Toggleable>
-          {blogs.length
-            ? <h2>blogs</h2>
-            : <h2>no blogs</h2>
-          }
-          {blogs.map(blog =>
-            <Blog
-              key={blog.id}
-              blog={blog}
-              handleLike={handleLike}
-              handleDeletion={handleDeletion}
-              owner={blog.user.username === user.username}
-            />
-          )}
-        </>
+        </Toggleable>
+        {blogs.length
+          ? <h2>blogs</h2>
+          : <h2>no blogs</h2>
+        }
+        {blogs.map(blog =>
+          <Blog
+            key={blog.id}
+            blog={blog}
+            handleLike={handleLike}
+            handleDeletion={handleDeletion}
+            owner={blog.user.username === user.username}
+          />
+        )}
+      </>
     }
   </>)
 }
