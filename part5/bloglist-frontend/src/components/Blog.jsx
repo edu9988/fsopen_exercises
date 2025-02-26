@@ -24,8 +24,8 @@ const Blog = ({ blog, handleLike, handleDeletion, owner }) => {
           <button onClick={() => setExpand(false)}>
             hide
           </button>
-          <br />{blog.url}
-          <br />likes {blog.likes}
+          <br /><span>{blog.url}</span>
+          <br /><span>likes {blog.likes}</span>
           <button onClick={() => handleLike(blog)}>like</button>
           <br />{blog.user.name}
           {owner && <>
