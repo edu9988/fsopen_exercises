@@ -45,41 +45,6 @@ describe('<Blog />', () => {
     )
     expect(element3).toBeNull()
 
-  /*
-    const element = screen.getByText('Component testing is done with react-testing-library')
-    expect(element).toBeDefined()
-  /*
-  */
-
-    //screen.debug() //prints html to console
-
-  /*
-    const div = container.querySelector('.note')
-    expect(div).toHaveTextContent(
-      'Component testing is done with react-testing-library'
-    )
-  */
-
-  /*
-    const element = screen.getByText('Component testing is done with react-testing-library')
-
-    screen.debug(element)
-    expect(element).toBeDefined()
-  */
-
-  /*
-    const mockHandler = vi.fn()
-
-    render(
-      <Note note={note} toggleImportance={mockHandler} />
-    )
-
-    const user = userEvent.setup()
-    const button = screen.getByText('make not important')
-    await user.click(button)
-
-    expect(mockHandler.mock.calls).toHaveLength(1)
-  */
   })
 
   test('likes and url are shown after clicking \'view\'', async () => {
