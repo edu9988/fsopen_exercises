@@ -112,4 +112,28 @@ describe('<Blog />', () => {
     expect(element2).not.toBeNull()
 
   })
+
+  test('clicking \'like\' twice results in two calls', async () => {
+    const mockHandler = vi.fn()
+    const secondMockHandler = vi.fn()
+
+    const { container } = render(
+      <Blog
+        blog={blog}
+        handleLike={mockHandler}
+        handleDeletion={secondMockHandler}
+        owner={true}
+      />
+    )
+
+    const user = userEvent.setup()
+    const button = screen.getByText('view')
+    await user.click(button)
+
+    const likeButton = screen.getByText('like')
+    await user.click(likeButton)
+    await user.click(likeButton)
+
+    expect(mockHandler.mock.calls).toHaveLength(2)
+  })
 })
