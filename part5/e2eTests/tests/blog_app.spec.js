@@ -1,8 +1,11 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
+const { loginWith, createBlog } = require('./helper')
 
 describe('Blog app', () => {
-  beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:5173')
+  beforeEach(async ({ page, request }) => {
+    await request.post('/api/testing/reset')
+
+    await page.goto('/')
   })
 
   test('Login form is shown', async ({ page }) => {
@@ -11,5 +14,27 @@ describe('Blog app', () => {
 
     await expect(userInput).toBeVisible()
     await expect(pwdInput).toBeVisible()
+  })
+
+  describe('Login', () => {
+    test('succeeds with correct credentials', async ({ page }) => {
+      await loginWith(page, 'Alice', '1234')
+
+      const warningDiv = await page.locator('.warning')
+      await expect(warningDiv).toContainText('Login successful by Alice')
+      await expect(warningDiv).toHaveCSS('border-style', 'solid')
+      await expect(warningDiv).toHaveCSS('color', 'rgb(0, 128, 0)')
+      await expect(page.getByText('Alice logged-in')).toBeVisible()
+    })
+
+    test('fails with wrong credentials', async ({ page }) => {
+      await loginWith(page, 'Alice', '4567')
+
+      const errorDiv = await page.locator('.error')
+      await expect(errorDiv).toContainText('Wrong credentials')
+      await expect(errorDiv).toHaveCSS('border-style', 'solid')
+      await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)')
+      await expect(page.getByText('Alice logged-in')).not.toBeVisible()
+    })
   })
 })

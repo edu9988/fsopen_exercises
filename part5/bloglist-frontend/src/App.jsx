@@ -74,7 +74,7 @@ const App = () => {
       window.localStorage.setItem(
         'loggedBlogappUser', JSON.stringify(tempUser)
       )
-      showSuccess(`Login successful by ${tempUser.name}`)
+      showSuccess(`Login successful by ${tempUser.name || tempUser.username}`)
       setUser(tempUser)
       setUsername('')
       setPassword('')
