@@ -175,7 +175,7 @@ const App = () => {
       />
       : <>
         <LogoutPar
-          username={user.name}
+          username={user.name || user.username}
           handleLogout={handleLogout}
         />
         <Toggleable buttonLabel="new blog" ref={blogFormRef}>
