@@ -38,7 +38,7 @@ describe('Blog app', () => {
   })
 
   describe('When logged in', () => {
-    beforeEach(async ({ page, request }) => {
+    beforeEach(async ({ page }) => {
       await loginWith(page, 'Alice', '1234')
     })
 
@@ -50,6 +50,18 @@ describe('Blog app', () => {
       await expect(warningDiv).toHaveCSS('border-style', 'solid')
       await expect(warningDiv).toHaveCSS('color', 'rgb(0, 128, 0)')
       await expect(page.getByText('Meme craft Robert Ridihalg')).toBeVisible()
+    })
+
+    test('Blogs can be liked', async ({ page }) => {
+      await createBlog(page, 'Meme craft', 'Robert Ridihalg', 'forget.it/its-bs')
+      await page.getByRole('button', { name: 'view' }).click()
+      await page.getByRole('button', { name: 'like' }).click()
+
+      const warningDiv = await page.locator('.warning')
+      await expect(warningDiv).toContainText('Added like to blog "Meme craft"')
+      await expect(warningDiv).toHaveCSS('border-style', 'solid')
+      await expect(warningDiv).toHaveCSS('color', 'rgb(0, 128, 0)')
+      await expect(page.getByText('likes 1')).toBeVisible()
     })
   })
 })
