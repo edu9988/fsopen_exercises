@@ -4,6 +4,12 @@ const { loginWith, createBlog } = require('./helper')
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     await request.post('/api/testing/reset')
+    await request.post('/api/users', {
+      data: {
+        username: 'Alice',
+        password: '1234'
+      }
+    })
     await page.goto('/')
   })
 
@@ -77,6 +83,21 @@ describe('Blog app', () => {
         await expect(warningDiv).toHaveCSS('border-style', 'solid')
         await expect(warningDiv).toHaveCSS('color', 'rgb(0, 128, 0)')
         await expect(page.getByText('To be deleted Rob Nightmare')).not.toBeVisible()
+      })
+
+      test('Non-owners cant see delete button', async ({ page, request }) => {
+        await request.post('/api/users', {
+          data: {
+            username: 'salainen',
+            password: 'bugainen'
+          }
+        })
+        await createBlog(page, 'To be deleted, from Alice', 'Robbie', 'forget.it/its-bs')
+        await page.getByRole('button', { name: 'logout' }).click()
+
+        await loginWith(page, 'salainen', 'bugainen')
+        await page.getByRole('button', { name: 'view' }).click()
+        await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
       })
     })
   })
