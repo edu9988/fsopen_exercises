@@ -1,3 +1,5 @@
+const { expect } = require('@playwright/test')
+
 const loginWith = async (page, username, password)  => {
   await page.locator('#username').fill(username)
   await page.locator('#password').fill(password)
@@ -13,4 +15,16 @@ const createBlog = async (page, title, author, url) => {
   await page.getByText(`${title} ${author}`).waitFor()
 }
 
-export { loginWith, createBlog }
+const likesOrderCheck = async page => {
+  let previous = Number.MAX_SAFE_INTEGER
+  for(const button of await page.getByRole('button', { name: 'view' }).all()){
+    await button.click()
+    let current = await page.getByText('likes').textContent()
+    current = parseInt(current.slice(6))
+    expect(current).toBeLessThanOrEqual(previous)
+    previous = current
+    await page.getByRole('button', { name: 'hide' }).click()
+  }
+}
+
+export { loginWith, createBlog, likesOrderCheck }

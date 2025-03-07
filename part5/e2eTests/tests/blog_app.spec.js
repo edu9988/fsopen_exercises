@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog } = require('./helper')
+const { loginWith, createBlog, likesOrderCheck } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -85,7 +85,7 @@ describe('Blog app', () => {
         await expect(page.getByText('To be deleted Rob Nightmare')).not.toBeVisible()
       })
 
-      test('Non-owners cant see delete button', async ({ page, request }) => {
+      test('Non-owners cannot see delete button', async ({ page, request }) => {
         await request.post('/api/users', {
           data: {
             username: 'salainen',
@@ -99,6 +99,35 @@ describe('Blog app', () => {
         await page.getByRole('button', { name: 'view' }).click()
         await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
       })
+    })
+
+    test('Blogs are displayed in descending order of likes', async ({ page, request }) => {
+      await createBlog(page, 'First blog', 'Bogus', 'forget.it/its-bs')
+      await createBlog(page, 'Second blog', 'Bogus', 'forget.it/its-bs')
+      await createBlog(page, 'Third blog', 'Bogus', 'forget.it/its-bs')
+
+      await likesOrderCheck(page)
+
+      await page.getByRole('button', { name: 'view' }).last().click()
+      await page.getByRole('button', { name: 'like' }).click()
+      await page.getByRole('button', { name: 'hide' }).click()
+
+      await likesOrderCheck(page)
+
+      await page.getByRole('button', { name: 'view' }).last().click()
+      await page.getByRole('button', { name: 'like' }).click()
+      await page.getByRole('button', { name: 'like' }).click()
+      await page.getByRole('button', { name: 'hide' }).click()
+
+      await likesOrderCheck(page)
+
+      await page.getByRole('button', { name: 'view' }).last().click()
+      await page.getByRole('button', { name: 'like' }).click()
+      await page.getByRole('button', { name: 'like' }).click()
+      await page.getByRole('button', { name: 'like' }).click()
+      await page.getByRole('button', { name: 'hide' }).click()
+
+      await likesOrderCheck(page)
     })
   })
 })
