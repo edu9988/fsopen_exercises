@@ -63,5 +63,21 @@ describe('Blog app', () => {
       await expect(warningDiv).toHaveCSS('color', 'rgb(0, 128, 0)')
       await expect(page.getByText('likes 1')).toBeVisible()
     })
+
+    describe('Blog deletion', () => {
+      test('Owner can delete', async ({ page }) => {
+        await createBlog(page, 'To be deleted', 'Rob Nightmare', 'forget.it/its-bs')
+
+        await page.getByRole('button', { name: 'view' }).click()
+
+        page.on('dialog', dialog => dialog.accept())
+        await page.getByRole('button', { name: 'remove' }).click()
+        const warningDiv = await page.locator('.warning')
+        await expect(warningDiv).toContainText('Deleted "To be deleted" by Rob Nightmare')
+        await expect(warningDiv).toHaveCSS('border-style', 'solid')
+        await expect(warningDiv).toHaveCSS('color', 'rgb(0, 128, 0)')
+        await expect(page.getByText('To be deleted Rob Nightmare')).not.toBeVisible()
+      })
+    })
   })
 })

@@ -99,6 +99,10 @@ const App = () => {
 
       showSuccess(`A new blog: "${blogObject.title}" by ${blogObject.author} added`)
       blogFormRef.current.toggleVisibility()
+      blog.user = {
+        username: user.username,
+        name: user.name
+      }
       setBlogs(blogs.concat(blog))
     }
     catch (exception){
