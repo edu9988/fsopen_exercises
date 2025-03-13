@@ -30,6 +30,14 @@ const reducer = (state = initialState, action) => {
           ? { ...anecdote, votes: anecdote.votes+1 }
           : anecdote
       })
+        .sort( (x,y) => {
+          if( x.votes > y.votes )
+            return -1
+          else if( x.votes < y.votes )
+            return 1
+          else
+            return 0
+        })
     case 'CREATE':
       return state.concat(asObject(action.payload.content))
     default:
