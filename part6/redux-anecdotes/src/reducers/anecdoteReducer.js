@@ -52,6 +52,8 @@ const anecdoteSlice = createSlice({
   initialState,
   reducers: {
     vote(state, action) {
+      console.log('current(state) now: ', current(state))
+      console.log('action', action)
       return state.map( anecdote => {
         return anecdote.id === action.payload
           ? { ...anecdote, votes: anecdote.votes+1 }
