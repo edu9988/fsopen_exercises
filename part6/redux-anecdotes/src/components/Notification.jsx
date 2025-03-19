@@ -4,15 +4,23 @@ const Notification = () => {
   const notification = useSelector(state => state.notification)
 
   const style = {
-    border: 'solid',
     padding: 10,
-    borderWidth: 1
+    borderWidth: 2,
+    backgroundColor: 'lightgray',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    color: 'green'
   }
-  return (
-    <div style={style}>
-      {notification}
-    </div>
-  )
+
+  if( notification.length === 0 )
+    return null
+  else
+    return (
+      <div style={style}>
+        {notification}
+      </div>
+    )
 }
 
 export default Notification

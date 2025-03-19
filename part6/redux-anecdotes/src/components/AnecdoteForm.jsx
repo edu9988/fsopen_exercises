@@ -1,5 +1,6 @@
 import { useDispatch } from 'react-redux'
 import { create } from '../reducers/anecdoteReducer'
+import { setNotification, clearNotification } from '../reducers/notificationReducer'
 
 const AnecdoteForm = () => {
   const dispatch = useDispatch()
@@ -11,6 +12,11 @@ const AnecdoteForm = () => {
         event.preventDefault()
         const input = document.querySelector('form input')
         dispatch(create(input.value))
+        dispatch(setNotification(`You created "${input.value}"`))
+        setTimeout(() => {
+          dispatch(clearNotification())
+          }, 5000
+        )
         input.value = ''
       }}>create</button>
     </form>

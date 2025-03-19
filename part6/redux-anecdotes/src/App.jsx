@@ -6,8 +6,8 @@ import Notification from './components/Notification'
 const App = () => {
   return (
     <>
-      <Notification />
       <h1>Anecdotes</h1>
+      <Notification />
       <Filter />
       <AnecdoteList />
       <h2>create new</h2>
