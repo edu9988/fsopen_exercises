@@ -8,9 +8,14 @@ const anecdoteSlice = createSlice({
     vote(state, action) {
       //console.log('current(state) now: ', current(state))
       //console.log('action', action)
+      const id = action.payload
+      const oldObj = state.find( anecdote => anecdote.id === id )
+      const newObj = { ...oldObj, votes: oldObj.votes+1 }
+      anecdoteService.update(id, newObj)
+
       return state.map( anecdote => {
-        return anecdote.id === action.payload
-          ? { ...anecdote, votes: anecdote.votes+1 }
+        return anecdote.id === id
+          ? newObj
           : anecdote
       })
         .sort( (x,y) => {
@@ -28,6 +33,14 @@ const anecdoteSlice = createSlice({
     },
     setAnecdotes(state, action) {
       return action.payload
+        .sort( (x,y) => {
+          if( x.votes > y.votes )
+            return -1
+          else if( x.votes < y.votes )
+            return 1
+          else
+            return 0
+        })
     }
   }
 })
