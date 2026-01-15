@@ -2,10 +2,12 @@ import { useState } from 'react'
 import {
   Routes,
   Route,
+  useMatch,
 } from "react-router-dom"
 
 import Menu from './components/Menu'
 import AnecdoteList from './components/AnecdoteList'
+import Anecdote from './components/Anecdote'
 import CreateNew from './components/CreateNew'
 import About from './components/About'
 import Footer from './components/Footer'
@@ -29,6 +31,11 @@ const App = () => {
   ])
 
   const [notification, setNotification] = useState('')
+  const match = useMatch('/anecdotes/:id')
+
+  const anecdote = match
+    ? anecdotes.find(anecdotes => anecdotes.id === Number(match.params.id))
+    : null
 
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
@@ -55,6 +62,7 @@ const App = () => {
       <Menu />
       <Routes>
         <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
+        <Route path="/anecdotes/:id" element={<Anecdote anecdote={anecdote} />} />
         <Route path="/about" element={<About />} />
         <Route path="/create" element={<CreateNew addNew={addNew} />} />
       </Routes>
