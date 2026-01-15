@@ -6,6 +6,7 @@ import {
 } from "react-router-dom"
 
 import Menu from './components/Menu'
+import Notification from './components/Notification'
 import AnecdoteList from './components/AnecdoteList'
 import Anecdote from './components/Anecdote'
 import CreateNew from './components/CreateNew'
@@ -56,15 +57,26 @@ const App = () => {
     setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
   }
 
+  const notify = (message) => {
+    setNotification(message)
+    setTimeout(() => {
+      setNotification('')
+    }, 5000)
+  }
+
   return (
     <div>
       <h1>Software anecdotes</h1>
       <Menu />
+      {notification === ''
+        ? null
+        : <Notification message={notification} />
+      }
       <Routes>
         <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />} />
         <Route path="/anecdotes/:id" element={<Anecdote anecdote={anecdote} />} />
         <Route path="/about" element={<About />} />
-        <Route path="/create" element={<CreateNew addNew={addNew} />} />
+        <Route path="/create" element={<CreateNew addNew={addNew} notify={notify}/>} />
       </Routes>
       <Footer />
     </div>
